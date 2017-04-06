@@ -4,29 +4,73 @@ class Component extends React.Component
     (proxy) => @setState "#{event}": proxy.target.value
 
 class HelloMessage extends Component
+  R = React.DOM
   @F: React.createFactory(@)
   render: () ->
-    @R.div null, "Hello #{@props.name}"
+    R.div null, "Hello #{@props.name}"
+
+class Projects
+  constructor: () ->
+    @values = {}
+    @keys = []
+    @listeners = []
+  push: (key, object) ->
+    if !@values[key]?
+      @keys.push(key)
+    @values[key] = object
+    for i from @listeners
+      i(@get())
+  get: (key) ->
+    if key?
+      @values[key]
+    else
+      @values[key] for key from @keys when @values[key]?
+  register: (listener) ->
+    @listeners.push(listener)
+
+class ProjectList extends Component
+  @F: React.createFactory(@)
+  constructor: (props) ->
+    super(props)
+    @projects = props.projects
+    @state = projects: @projects.get()
+    @projects.register((value) => @setState projects: value)
+  render: () ->
+    @R.ol className: 'project-list',
+      for project from @state.projects
+        @R.li className: 'project', key: project.id,
+          @R.span null, project.id
+          @R.span null, project.name
+          @R.span null, project.priority
 
 class AddProject extends Component
   @F: React.createFactory(@)
   constructor: (props) ->
     super(props)
     @state = id: props.id, name: '', priority: 'high'
+    @projects = props.projects
+  submit: (e) =>
+    e.preventDefault()
+    @projects.push(@state.id, id: @state.id, name: @state.name, priority: @state.priority)
   render: () ->
-    @R.form className: "add-project", name: "adp",
-      @R.input name: "id", type: "text", hidden: "true", value: @state.id
+    @R.form className: "add-project", name: "adp", onSubmit: this.submit,
+      @R.input name: "id", type: "text", hidden: "true", value: @state.id, readOnly: true
       @R.input name: "name", type: "text", onChange: @changed('name'), value: @state.name
       @R.select name: "priority", onChange: @changed('priority'), value: @state.priority,
         @R.option value: "low", "Low"
         @R.option value: "medium", "Medium"
         @R.option value: "high", "High"
+      @R.input type: "submit"
 
 class MainWidget extends Component
   @F: React.createFactory(@)
+  constructor: (props) ->
+    super(props)
+    @projects = new Projects
   render: () ->
     @R.div null,
       HelloMessage.F name: "Clouds"
-      AddProject.F id: "test"
+      ProjectList.F projects: @projects
+      AddProject.F projects: @projects, id: "test"
 
 ReactDOM.render MainWidget.F(), document.getElementById("main")
