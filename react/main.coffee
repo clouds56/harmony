@@ -36,12 +36,18 @@ class ProjectList extends Component
     @state = projects: @projects.get()
     @projects.register((value) => @setState projects: value)
   render: () ->
-    @R.ol className: 'project-list',
-      for project from @state.projects
-        @R.li className: 'project', key: project.id,
-          @R.span null, project.id
-          @R.span null, project.name
-          @R.span null, project.priority
+    @R.table className: 'project-list',
+      @R.thead null,
+        @R.tr null,
+          @R.th null, "id"
+          @R.th null, "name"
+          @R.th null, "priority"
+      @R.tbody null,
+        for project from @state.projects
+          @R.tr className: 'project', key: project.id,
+            @R.td null, project.id
+            @R.td null, project.name
+            @R.td null, project.priority
 
 class AddProject extends Component
   @F: React.createFactory(@)
@@ -53,7 +59,7 @@ class AddProject extends Component
     e.preventDefault()
     @projects.push(@state.id, id: @state.id, name: @state.name, priority: @state.priority)
   render: () ->
-    @R.form className: "add-project", name: "adp", onSubmit: this.submit,
+    @R.form className: "add-project", onSubmit: this.submit,
       @R.input name: "id", type: "text", hidden: "true", value: @state.id, readOnly: true
       @R.input name: "name", type: "text", onChange: @changed('name'), value: @state.name
       @R.select name: "priority", onChange: @changed('priority'), value: @state.priority,
