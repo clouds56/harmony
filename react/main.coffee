@@ -7,7 +7,18 @@ class Component extends React.Component
 class HelloMessage extends Component
   @F: React.createFactory(@)
   render: () ->
-    R.div null, "Hello #{@props.name}"
+    R.div null,
+      "Hello #{@props.name}"
+      R.style null,
+        ".table    { display: table }"
+        ".thead    { display: table-header-group }"
+        ".tbody    { display: table-row-group }"
+        ".tfoot    { display: table-footer-group }"
+        ".col      { display: table-column }"
+        ".colgroup { display: table-column-group }"
+        ".caption  { display: table-caption }"
+        ".tr, .table form       { display: table-row }"
+        ".td, .th,   { display: table-cell }"
 
 class Projects
   constructor: () ->
@@ -46,20 +57,22 @@ class ProjectList extends Component
     @state = projects: @projects.get()
     @projects.register((value) => @setState projects: value)
   render: () ->
-    R.table className: 'project-list',
-      R.thead null,
-        R.tr null,
-          R.th null, "id"
-          R.th null, "name"
-          R.th null, "priority"
-          R.th null, "action"
-      R.tbody null,
+    R.div className: 'table project-list',
+      R.div className: 'thead',
+        R.div className: 'tr',
+          R.span className: 'th', "id"
+          R.span className: 'th', "name"
+          R.span className: 'th', "priority"
+          R.span className: 'th', "action"
+      R.div className: 'tbody',
         for project from @state.projects
-          R.tr className: 'project', key: project.id,
-            R.td null, project.id.substring(0,8)
-            R.td null, project.name
-            R.td null, project.priority
-            R.td null, "edit"
+          R.div className: 'tr project', key: project.id,
+            R.span className: 'td', project.id.substring(0,8)
+            R.span className: 'td', project.name
+            R.span className: 'td', project.priority
+            R.span className: 'td', "edit"
+      R.div className: 'tfoot',
+        AddProject.F projects: @projects, id: DbConnector.createGuid()
 
 class AddProject extends Component
   @F: React.createFactory(@)
@@ -72,13 +85,13 @@ class AddProject extends Component
     @projects.push(@state.id, id: @state.id, name: @state.name, priority: @state.priority)
   render: () ->
     R.form className: "add-project", onSubmit: this.submit,
-      R.input name: "id", type: "text", value: @state.id, readOnly: true
-      R.input name: "name", type: "text", onChange: @changed('name'), value: @state.name
-      R.select name: "priority", onChange: @changed('priority'), value: @state.priority,
+      R.span className: 'td', R.input name: "id", type: "text", value: @state.id, readOnly: true
+      R.span className: 'td', R.input name: "name", type: "text", onChange: @changed('name'), value: @state.name
+      R.span className: 'td', R.select name: "priority", onChange: @changed('priority'), value: @state.priority,
         R.option value: "low", "Low"
         R.option value: "medium", "Medium"
         R.option value: "high", "High"
-      R.input type: "submit"
+      R.span className: 'td', R.input type: "submit"
 
 class MainWidget extends Component
   @F: React.createFactory(@)
@@ -89,6 +102,5 @@ class MainWidget extends Component
     R.div null,
       HelloMessage.F name: "Clouds"
       ProjectList.F projects: @projects
-      AddProject.F projects: @projects, id: DbConnector.createGuid()
 
 ReactDOM.render MainWidget.F(), document.getElementById("main")
