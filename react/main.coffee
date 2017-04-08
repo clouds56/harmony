@@ -17,8 +17,8 @@ class HelloMessage extends Component
         ".col      { display: table-column }"
         ".colgroup { display: table-column-group }"
         ".caption  { display: table-caption }"
-        ".tr, .table form       { display: table-row }"
-        ".td, .th,   { display: table-cell }"
+        ".tr       { display: table-row }"
+        ".td, .th  { display: table-cell }"
 
 class Projects
   constructor: () ->
@@ -84,7 +84,7 @@ class AddProject extends Component
     e.preventDefault()
     @projects.push(@state.id, id: @state.id, name: @state.name, priority: @state.priority)
   render: () ->
-    R.form className: "add-project", onSubmit: this.submit,
+    R.form className: "tr add-project", onSubmit: this.submit,
       R.span className: 'td', R.input name: "id", type: "text", value: @state.id, readOnly: true
       R.span className: 'td', R.input name: "name", type: "text", onChange: @changed('name'), value: @state.name
       R.span className: 'td', R.select name: "priority", onChange: @changed('priority'), value: @state.priority,
