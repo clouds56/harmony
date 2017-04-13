@@ -20,6 +20,8 @@ class HelloMessage extends Component
         ".tr       { display: table-row }"
         ".td, .th  { display: table-cell }"
 
+        ".mono     { font-family: monospace }"
+
 class Projects
   constructor: () ->
     @values = {}
@@ -67,7 +69,7 @@ class ProjectList extends Component
       R.div className: 'tbody',
         for project from @state.projects
           R.div className: 'tr project', key: project.id,
-            R.span className: 'td', project.id.substring(0,8)
+            R.span className: 'td mono', project.id.substring(0,8)
             R.span className: 'td', project.name
             R.span className: 'td', project.priority
             R.span className: 'td', "edit"
@@ -98,9 +100,12 @@ class MainWidget extends Component
   constructor: (props) ->
     super(props)
     @projects = new Projects
+    if props.data?.projects?
+      for i from props.data.projects
+        @projects.push(i.id, i)
   render: () ->
     R.div null,
       HelloMessage.F name: "Clouds"
       ProjectList.F projects: @projects
 
-ReactDOM.render MainWidget.F(), document.getElementById("main")
+ReactDOM.render MainWidget.F(data: @data), document.getElementById("main")
