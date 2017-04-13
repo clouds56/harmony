@@ -1,0 +1,16 @@
+{
+  "name": "harmany",
+  "homepage": "https://github.com/clouds56/harmony",
+  "authors": [
+    "Clouds Flowing <clouds.flowing@gmail.com>"
+  ],
+  "description": "",
+  "main": "index.html",
+  "keywords": [
+    "project"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "react": "^15.4.2"
+  }
+}
