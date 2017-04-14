@@ -119,8 +119,30 @@ class TimelineChart extends Component
   constructor: (props) ->
     super(props)
     @timeline = props.timeline
+    @projects = props.projects
+    @state = timeline: []
+    for p, i in @projects.get()
+      t = @timeline[p.id]
+      @state.timeline[i] = label: p.name, times: @convert(t.get())
+      t.register((value) => @setState () -> @state.timeline[i].times = @convert(value))
+  parseDate: (x) ->
+    d3.timeParse("%Y-%m-%d")(x) * 1
+  parseDuration: (x) ->
+    # TODO: fix duration
+    p = d3.timeParse("%H:%M:%S")
+    p(x) - p("0:00:00")
+  convert: (value) ->
+    value.map (x) =>
+      start = @parseDate(x.date)
+      duration = @parseDuration(x.duration)
+      end = start + @parseDuration("24:00:00")
+      starting_time: start, ending_time: end, duration: duration
+  componentDidMount: () ->
+    svg = d3.select("svg").attr("width", 500).attr("height", 800)
+    chart = d3.timeline().stack().tickFormat format: d3.timeFormat("%m%d"), tickTime: d3.timeDay, tickInterval: 1, tickSize: 6
+    svg.datum(@state.timeline).call(chart)
   render: () ->
-    R.svg()
+    R.svg null
 
 class MainWidget extends Component
   @F: React.createFactory(@)
@@ -138,6 +160,6 @@ class MainWidget extends Component
     R.div null,
       HelloMessage.F name: "Clouds"
       ProjectList.F projects: @projects
-      TimelineChart.F timeline: @timeline
+      TimelineChart.F timeline: @timeline, projects: @projects
 
 ReactDOM.render MainWidget.F(data: @data), document.getElementById("main")
