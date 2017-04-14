@@ -22,12 +22,22 @@ class HelloMessage extends Component
 
         ".mono     { font-family: monospace }"
 
-class Projects
+class DefaultDict
+  @factory = Object
+  get: (key) ->
+    if !@[key]?
+      @[key] = new @constructor.factory
+    return @[key]
+
+class List
   constructor: () ->
     @values = {}
     @keys = []
     @listeners = []
   push: (key, object) ->
+    if !object?
+      object = key
+      key = object[@constructor.key]
     if !@values[key]?
       @keys.push(key)
     @values[key] = object
@@ -40,6 +50,15 @@ class Projects
       @values[key] for key from @keys when @values[key]?
   register: (listener) ->
     @listeners.push(listener)
+
+class Projects extends List
+  @key = "id"
+
+class Timeline extends List
+  @key = "date"
+
+class TimelineDict extends DefaultDict
+  @factory = Timeline
 
 class DbConnector
   @KB: 1024
@@ -95,6 +114,14 @@ class AddProject extends Component
         R.option value: "high", "High"
       R.span className: 'td', R.input type: "submit"
 
+class TimelineChart extends Component
+  @F: React.createFactory(@)
+  constructor: (props) ->
+    super(props)
+    @timeline = props.timeline
+  render: () ->
+    R.svg()
+
 class MainWidget extends Component
   @F: React.createFactory(@)
   constructor: (props) ->
@@ -102,10 +129,15 @@ class MainWidget extends Component
     @projects = new Projects
     if props.data?.projects?
       for i from props.data.projects
-        @projects.push(i.id, i)
+        @projects.push(i)
+    @timeline = new TimelineDict
+    if props.data?.timeline?
+      for i from props.data.timeline
+        @timeline.get(i.id).push(i)
   render: () ->
     R.div null,
       HelloMessage.F name: "Clouds"
       ProjectList.F projects: @projects
+      TimelineChart.F timeline: @timeline
 
 ReactDOM.render MainWidget.F(data: @data), document.getElementById("main")
